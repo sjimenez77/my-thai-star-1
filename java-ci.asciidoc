@@ -1,0 +1,105 @@
+:toc: macro
+toc::[]
+
+= Java CI
+
+The Java server-side of My Thai Star is an *oasp4j:2.3*-based application. As long as *Maven* and a *Java 8* are going to be needed, the Pipeline should have those tools available as well.
+
+== Pipeline
+
+This Pipeline is called *mts_java_pipeline*, and it is located exactly in the same PL instance's folder than *mts_angular_pipeline*. Let's see how the Pipeline's flow behaves.
+
+image::images/ci/java/java_pipeline_flow.PNG[, link="java_pipeline_flow.PNG"] 
+
+Check those Pipeline stages with more detail:
+
+. Check-out MTS from GitHub
++
+Gets the code from https://github.com/devonfw/my-thai-star .
++
+. Install tools
++
+As it is a *oasp4j* project it will be necessary to add a *Java 8* JDK and *Maven*.
++
+[source, groovy]
+----
+tool name: 'Maven 3.3.9', type: 'maven'
+env.JAVA_HOME="${tool 'OpenJDK 1.8'}"
+env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
+----
++
+. Install Dependencies
++
+In this stage every dependency defined in `pom.xml` will be installed. In order to separtate processes in the Pipeline, the script is executed skipping all unit tests.
++
+[source, groovy]
+----
+mvn -s $MAVEN_SETTINGS clean install -Dmaven.test.skip=true
+----
++
+. Execute Unit tests
++
+By default, maven execute tests while installing project's dependencies or building artifacts. But in this case this step is separated to check the state of every stage independently.
++
+[source, groovy]
+----
+mvn -s $MAVEN_SETTINGS test
+----
++
+. SonarQube analysis
++
+The code is evaluated using the integrated PL instance's SonarQube. Its interface can also be accessed.
++
+[source, groovy]
+----
+// tool definition only for this stage
+def scannerHome = tool 'SonarQube Scanner';
+
+// SonarQube Analysis
+withSonarQubeEnv('SonarQube') 
+{
+    sh """
+        ${scannerHome}/bin/sonar-scanner\
+        -Dsonar.login=admin\
+        -Dsonar.password=admin\
+        -Dsonar.projectKey=testmythaistar\
+        -Dsonar.projectName=my_thai_star_java\
+        -Dsonar.projectVersion=1.0\
+        -Dsonar.sources=.\
+        -Dsonar.language=java
+    """
+}
+----
++
+. Build and store in Nexus
++
+//
++
+[source, groovy]
+----
+mvn -s $MAVEN_SETTINGS clean deploy -Dmaven.test.skip=true
+----
+. Deployment in DS
++
+The Deployment Strategy to deploy the Java back-end in its own Pipeline is using an independent Docker container based on a *tomcat* image.
+
+
+== Adjustments
+
+The only _extra_ thing that needs to be added to the Java server-side is some information that determines where the artifact of the project is going to be stored in *Nexus*. This is going to be a section in the main `pom.xml` file called `<distributionManagement>`. This section will point to the PL instance's Nexus. Let's have a look at it.
+
+[source, xml]
+----
+<distributionManagement>
+    <repository>
+        <id>devon.releases</id>
+        <name>devon Releases</name>
+        <url>https://devon.s2-eu.capgemini.com/nexus/content/repositories/releases/</url>
+    </repository>
+    <snapshotRepository>
+        <id>devon.snapshots</id>
+        <name>devon Snapshots</name>
+        <url>https://devon.s2-eu.capgemini.com/nexus/content/repositories/snapshots/</url>
+    </snapshotRepository>
+</distributionManagement>
+----

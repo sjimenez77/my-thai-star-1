@@ -1,0 +1,96 @@
+:toc: macro
+toc::[]
+
+= Angular CI
+
+The Angular client-side of My Thai Star is going to have some specific needs for the CI-CD Pipeline to perform mandatory operations.
+
+== Pipeline
+
+The Pipeline for the Angular client-side is going to be called *mts_angular_pipeline*. It is located in the PL instance, under the link:https://devon.s2-eu.capgemini.com/#https://devon.s2-eu.capgemini.com/jenkins/job/MTS/[MTS folder] (as previously explained). It is going to follow a process flow like this one:
+
+image::images/ci/angular/angular_pipeline_flow.PNG[, link="angular_pipeline_flow.PNG"]
+
+Each of those steps are called _stages_ in the Jenkins context.Let's see what those steps mean in the context of the Angular application:
+
+. Check-out MTS from GitHub
++
+Retrieves the project from the GitHub repository which it's located.
++
+[source, groovy]
+----
+git branch: 'develop', credentialsId: 'github-devonfw-ci', url: 'https://github.com/devonfw/my-thai-star/'
+----
+. Install Tools
++
+The Pipeline needs some Tools to perform some operations with the Angular project. Those tools are a correct version of *NodeJS* (6.x onwards), the *Angular CLI* and *Yarn*.
++
+[source, groovy]
+----
+tool 'Node 7'
+tool 'Yarn'
+tool 'Angular CLI'
+----
+. `$ yarn upgrade`
++
+The script `$ yarn upgrade` does a refresh installation. That means it removes the `node_modules` dependency folder and install all `package.json` dependencies again. It can be also done by executing this:
++
+[source, groovy]
+----
+find . -name "node_modules" -exec rm -rf '{}' +
+npm i
+----
+. `$ ng lint`
++
+This script executes a linting process of TypeScript. Rules can be defined in the `tslint.json` file of the project. It throws an exception whenever a file contains a non-compliant piece of code.
++
+. `$ yarn test:ci`
++
+The CI testing of the Angular client is different than the standard local testing (addapted to CI environments, as specified in the *Addaptation* section of document). This script just executes the following commands:
++
+[source, groovy]
+----
+ng test --browsers PhantomJS --single-run
+----
+. `$ yarn build:prod`
++
+The building process of the Angular client would result in a folder called `/dist` in the main Angular's directory. That folder is the one that is going to be served afterwards as an artifact. This process has also been addapted to some Deployment needs. This building script executes the following:
++
+[source, groovy]
+----
+ng build --aot --environment=prod
+----
+. `Deploy in DS`
++
+Once the scripts produce the Angular artifact (`/dist` folder), it's time to deploy it. *NGINX* is a good tool for client-side deployment. Any JS/HTML/... project we have could be deployed in there.
+
+== Adjustments
+
+The Angular project Pipeline needed some "extra" features to complete all planned processes. Those features resulted in some additions to the project.
+
+=== PhantomJS
+
+The first one is related with the Testing. By default, an Angular project uses Karma to execute tests. Karma uses Chrome that opens a browser window and even shows the results on it. That is a problem whenever those tests needs to be executed in a CI environment because Karma won't be able to open any kind of Chrome window to execute its tests. Even though, there should be possible to execute tests in a "development" or "standard" way (using Chrome). For this reason, some scripts had been created in the `package.json` of the application:
+
+    "test": "ng test --browsers Chrome",
+    "test:ci": "ng test --browsers PhantomJS --single-run"
+
+Thus, both two options are still available, `test` for testing while developing locally, and `test:ci` to be used by the Pipeline. 
+
+=== Angular environments
+
+Something similar happens with the building process. For example, _are we pointing to the same API endpoints if we're locally developing than if the application is already in Production?_. Well, the answer is *no*. It becomes mandatory to build or serve/execute the Angular application for several purposes. Fortunatelly, the Angular framework had already thought about this situation, providing the projects with `environment`(s).
+
+By default, an Angular project has 2 different environments defined in the `.angular.cli.json` file:
+
+[source]
+----
+"environments": {
+    "dev": "environments/environment.ts",
+    "prod": "environments/environment.prod.ts",
+}
+----
+
+To solve this server path problem, its URL had been defined in those files, obviously changing from one to another. In the `dev` environment it is going to point to `http://localhost:8081/mythaistar/` and in `prod` environment to `http://de-mucdevondepl01:9090/mythaistar/`.
+
+So, if the building is done executing `ng build --environment=dev`, every rest operation will point to a local server, and if it is `ng build --environment=prod` it will point to an already deployed server.

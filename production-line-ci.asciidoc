@@ -31,7 +31,7 @@ They are located under the *MTS* folder of the PL instance:
 
 image::images/ci/mts_folder.PNG[, link="images/ci/mts_folder.PNG"]
 
-Those Jenkins Pipelines will not have any code to execute. They're just pointing to all *Jenkinsfiles* under the `/jenkins` folder of the repository. They can be found link::https://github.com/devonfw/my-thai-star/tree/develop/jenkins[here].
+Those Jenkins Pipelines will not have any code to execute. They're just pointing to all *Jenkinsfiles* under the `/jenkins` folder of the repository. They can be found link:https://github.com/devonfw/my-thai-star/tree/develop/jenkins[here].
 
 //== Needed Resources
 

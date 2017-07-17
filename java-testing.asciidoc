@@ -1,3 +1,6 @@
+:toc: macro
+toc::[]
+
 = Java testing
 
 == Component testing

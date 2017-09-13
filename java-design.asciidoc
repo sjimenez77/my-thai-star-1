@@ -189,7 +189,7 @@ Following the https://github.com/oasp/oasp4j/wiki/guide-rest[naming conventions]
 - (GET) `/mythaistar/services/rest/security/v1/currentuser/`.
 
 
-You can find all the details for the services implementation in the https://github.com/devonfw/my-thai-star/blob/develop/swagger/mythaistar.yaml[Swagger definition] included in the My Thai Star project on Github.
+You can find all the details for the services implementation in the https://github.com/oasp/my-thai-star/blob/develop/swagger/mythaistar.yaml[Swagger definition] included in the My Thai Star project on Github.
 
 === Service api
 
@@ -235,7 +235,7 @@ public class DishmanagementRestServiceImpl implements DishmanagementRestService 
 
 [NOTE]
 ====
-You can see the Oasp4j conventions for REST services https://github.com/oasp/oasp4j/wiki/guide-rest[here]. And the My Thai Star services definition https://github.com/devonfw/my-thai-star/blob/develop/swagger/mythaistar.yaml[here] as part of the https://github.com/devonfw/my-thai-star[My Thai Star] project.
+You can see the Oasp4j conventions for REST services https://github.com/oasp/oasp4j/wiki/guide-rest[here]. And the My Thai Star services definition https://github.com/oasp/my-thai-star/blob/develop/swagger/mythaistar.yaml[here] as part of the https://github.com/oasp/my-thai-star[My Thai Star] project.
 ====
 
 == Logic layer

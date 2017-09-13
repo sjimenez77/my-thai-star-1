@@ -15,7 +15,7 @@ Check those Pipeline stages with more detail:
 
 . Check-out MTS from GitHub
 +
-Gets the code from https://github.com/devonfw/my-thai-star .
+Gets the code from https://github.com/oasp/my-thai-star .
 +
 . Install tools
 +

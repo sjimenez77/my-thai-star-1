@@ -77,7 +77,7 @@ In order to be compatible with the other backend implementations, we must follow
 - (GET) `/mythaistar/services/rest/security/v1/currentuser/`.
 
 
-You can find all the details for the services implementation in the https://github.com/devonfw/my-thai-star/blob/develop/swagger/mythaistar.yaml[Swagger definition] included in the My Thai Star project on Github.
+You can find all the details for the services implementation in the https://github.com/oasp/my-thai-star/blob/develop/swagger/mythaistar.yaml[Swagger definition] included in the My Thai Star project on Github.
 
 To treat these http services, we must define the handlers following the https://github.com/oasp/oasp4fn/wiki/Structure[oasp4fn convention]:
 

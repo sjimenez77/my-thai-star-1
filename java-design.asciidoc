@@ -25,9 +25,11 @@ Following the OASP4J conventions the Java My Thai Star backend is going to be de
 
 === Project modules
 
-Using the OASP4J approach for the Java backend project we will have a structure of a _Maven_ project formed by two projects
+Using the OASP4J approach for the Java backend project we will have a structure of a _Maven_ project formed by three projects
 
 image::images/java/project_modules.png[, link="images/java/project_modules.png"]
+
+- _api_: Stores all the REST interfaces and corresponding Request/Response objects.
 
 - _core_: Stores all the logic and functionality of the application.
 

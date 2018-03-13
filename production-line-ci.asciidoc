@@ -29,7 +29,7 @@ It is a platform for continuous inspection of the code. It is going to be used f
 
 They are located under the *MTS* folder of the PL instance:
 
-image::images/ci/mts_folder.PNG[, link="images/ci/mts_folder.PNG"]
+image::images/jenkins/mts-pipelines.png[, link="iamges/jenkins/mts-pipelines.png"]
 
 Those Jenkins Pipelines will not have any code to execute. They're just pointing to all *Jenkinsfiles* under the `/jenkins` folder of the repository. They can be found link:https://github.com/oasp/my-thai-star/tree/develop/jenkins[here].
 
@@ -43,4 +43,3 @@ Those Jenkins Pipelines will not have any code to execute. They're just pointing
 
 - link:angular-ci[Angular CI]
 - link:java-ci[Java CI]
-- link:clientserver-ci[Client and Server]

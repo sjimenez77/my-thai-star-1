@@ -27,9 +27,11 @@ The Pipeline needs some Tools to perform some operations with the Angular projec
 +
 [source, groovy]
 ----
-tool 'Node 7'
-tool 'Yarn'
-tool 'Angular CLI'
+def node = tool name: 'Node 8.9.4 LTS', type: 'jenkins.plugins.nodejs.tools.NodeJSInstallation'
+env.PATH = "${node}/bin:${env.PATH}"
+sh "npm i -g yarn"
+sh "npm i -g @angular/cli@1.6.0"
+tool 'Chrome-stable'
 ----
 . `$ yarn upgrade`
 +
@@ -50,7 +52,7 @@ The CI testing of the Angular client is different than the standard local testin
 +
 [source, groovy]
 ----
-ng test --browsers PhantomJS --single-run
+ng test --browsers ChromeHeadless --single-run
 ----
 . `$ yarn build:prod`
 +
@@ -58,7 +60,7 @@ The building process of the Angular client would result in a folder called `/dis
 +
 [source, groovy]
 ----
-ng build --aot --environment=prod
+ng build --prod --environment=prod --build-optimizer
 ----
 . `Deploy in DS`
 +
@@ -73,7 +75,7 @@ The Angular project Pipeline needed some "extra" features to complete all planne
 The first one is related with the Testing. By default, an Angular project uses Karma to execute tests. Karma uses Chrome that opens a browser window and even shows the results on it. That is a problem whenever those tests needs to be executed in a CI environment because Karma won't be able to open any kind of Chrome window to execute its tests. Even though, there should be possible to execute tests in a "development" or "standard" way (using Chrome). For this reason, some scripts had been created in the `package.json` of the application:
 
     "test": "ng test --browsers Chrome",
-    "test:ci": "ng test --browsers PhantomJS --single-run"
+    "test:ci": "ng test --browsers ChromeHeadless --single-run"
 
 Thus, both two options are still available, `test` for testing while developing locally, and `test:ci` to be used by the Pipeline. 
 

@@ -54,7 +54,7 @@ The included tests do the following:
 
 * _Test_orderMenu_: Log in and order food for a certain booked table.
 
-These four tests can be found inside *MyThaiStarTest.java*, in https://github.com/Jorge-Dacal/my-thai-star/tree/fix_orderMenu/mrchecker/endtoend-test/src/test/java/com/devonfw/mts/tests. 
+These four tests can be found inside *MyThaiStarTest.java* located link:https://github.com/devonfw/my-thai-star/tree/develop/mrchecker/endtoend-test/src/test/java/com/devonfw/mts/tests[here]. 
 
 
 

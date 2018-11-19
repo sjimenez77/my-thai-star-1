@@ -23,6 +23,8 @@
 *** Client Side
 **** link:angular-testing[Angular testing]
 **** link:xamarin-testing[Xamarin testing]
+*** End to end
+**** link:mrchecker[Mr.Checker testing]
 ** UI design
 *** link:style-guide[Style guide]
 ** CI/CD

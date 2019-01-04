@@ -1,7 +1,7 @@
 :toc: macro
 toc::[]
 
-= Node.js design
+= Node.js design (deprecated)
 
 == Introduction
 

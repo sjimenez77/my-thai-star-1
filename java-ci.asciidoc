@@ -7,99 +7,102 @@ The Java server-side of My Thai Star is an *oasp4j:2.3*-based application. As lo
 
 == Pipeline
 
-This Pipeline is called *mts_java_pipeline*, and it is located exactly in the same PL instance's folder than *mts_angular_pipeline*. Let's see how the Pipeline's flow behaves.
+This Pipeline is called *MyThaiStar_SERVER_BUILD*, and it is located exactly in the same PL instance's folder than *MyThaiStar_FRONTEND_BUILD*. Let's see how the Pipeline's flow behaves.
 
 image::images/ci/java/java_pipeline_flow.PNG[, link="java_pipeline_flow.PNG"] 
 
 Check those Pipeline stages with more detail:
 
-. Check-out MTS from GitHub
+. Declarative: Checkout SCM
 +
-Gets the code from https://github.com/oasp/my-thai-star .
+Gets the code from https://github.com/oasp/my-thai-star . This step is not defined directly in our pipeline, but as it is loaded from the repository this step should always be done at the beginning.
 +
-. Install tools
+. Unit Tests
 +
-As it is a *oasp4j* project it will be necessary to add a *Java 8* JDK and *Maven*.
-+
-[source, groovy]
-----
-tool name: 'Maven 3.3.9', type: 'maven'
-env.JAVA_HOME="${tool 'OpenJDK 1.8'}"
-env.PATH="${env.JAVA_HOME}/bin:${env.PATH}"
-----
-+
-. Install Dependencies
-+
-In this stage every dependency defined in `pom.xml` will be installed. In order to separtate processes in the Pipeline, the script is executed skipping all unit tests.
+This step will execute the project unit test with maven.
 +
 [source, groovy]
 ----
-mvn -s $MAVEN_SETTINGS clean install -Dmaven.test.skip=true
-----
-+
-. Execute Unit tests
-+
-By default, maven execute tests while installing project's dependencies or building artifacts. But in this case this step is separated to check the state of every stage independently.
-+
-[source, groovy]
-----
-mvn -s $MAVEN_SETTINGS test
+mvn clean test
 ----
 +
 . SonarQube analysis
 +
-The code is evaluated using the integrated PL instance's SonarQube. Its interface can also be accessed.
+The code is evaluated using the integrated PL instance's SonarQube. Also, it will wait for the quality gate status. If the status is failing, the pipeline execution will be stoped.
 +
 [source, groovy]
 ----
-// tool definition only for this stage
-def scannerHome = tool 'SonarQube Scanner';
+withSonarQubeEnv(sonarEnv) {
+    sh "mvn sonar:sonar"
+}
 
-// SonarQube Analysis
-withSonarQubeEnv('SonarQube') 
-{
-    sh """
-        ${scannerHome}/bin/sonar-scanner\
-        -Dsonar.login=admin\
-        -Dsonar.password=admin\
-        -Dsonar.projectKey=testmythaistar\
-        -Dsonar.projectName=my_thai_star_java\
-        -Dsonar.projectVersion=1.0\
-        -Dsonar.sources=.\
-        -Dsonar.language=java
-    """
+def qg = waitForQualityGate() 
+if (qg.status != 'OK') {
+    error "Pipeline aborted due to quality gate failure: ${qg.status}"
 }
 ----
 +
-. Build and store in Nexus
+. Deliver application into Nexus
 +
-//
+Store all artifacts into nexus.
 +
 [source, groovy]
 ----
-mvn -s $MAVEN_SETTINGS clean deploy -Dmaven.test.skip=true
+mvn deploy -Dmaven.test.skip=true
 ----
-. Deployment in DS
-+
-The Deployment Strategy to deploy the Java back-end in its own Pipeline is using an independent Docker container based on a *tomcat* image.
 
 
 == Adjustments
 
-The only _extra_ thing that needs to be added to the Java server-side is some information that determines where the artifact of the project is going to be stored in *Nexus*. This is going to be a section in the main `pom.xml` file called `<distributionManagement>`. This section will point to the PL instance's Nexus. Let's have a look at it.
+=== Pipeline Environment
+
+In order to easily reuse the pipeline in other java projects, all variables have been defined in the block environment. All variables have the default values that Production Line uses, so if you're going to work in production line you won't have to change anything. Example:
+
+[source, groovy]
+----
+environment {
+    // Directory with java project
+    javaDir = 'java/mtsj'
+
+    // sonarQube
+    // Name of the sonarQube environment
+    sonarEnv = "SonarQube"
+
+    // Nexus 3
+    // Maven global settings configuration ID
+    globalSettingsId = 'MavenSettings'
+    // Maven tool id
+    mavenInstallation = 'Maven3'
+}
+----
+
+==== Description
+- javaDir: Relative route to java application. In My Thai Star this is the java/mtsj folder. The actual directory (.) is also allowed.
++
+image::images/ci/java/java_directory.png[, link="java_directory.png"]
+- sonarEnv: Name of the sonarQube environment. SonarQube is the default value for PL.
+- globalSettingsId: The id of the global settings file. MavenSettings is the default value for PL.
++
+image::images/ci/angular/nexus3_global_config.png[, link="nexus3_global_config.PNG"]
+- mavenInstallation: The name of the maven tool. Maven3 is the default value for PL.
++
+image::images/ci/angular/maven_tool.png[, link="maven_tool.PNG"]
+
+=== Distribution management
+The only _extra_ thing that needs to be added to the Java server-side is some information that determines where the artifact of the project is going to be stored in *Nexus*. This is going to be a section in the main `pom.xml` file called `<distributionManagement>`. This section will point to the PL instance's Nexus. Let's have a look at it. It's already configured with the PL default values.
 
 [source, xml]
 ----
 <distributionManagement>
     <repository>
-        <id>devon.releases</id>
-        <name>devon Releases</name>
-        <url>https://devon.s2-eu.capgemini.com/nexus/content/repositories/releases/</url>
+      <id>pl-nexus</id>
+      <name>PL Releases</name>
+      <url>http://nexus3-core:8081/nexus/content/repositories/maven-releases/</url>
     </repository>
     <snapshotRepository>
-        <id>devon.snapshots</id>
-        <name>devon Snapshots</name>
-        <url>https://devon.s2-eu.capgemini.com/nexus/content/repositories/snapshots/</url>
+      <id>pl-nexus</id>
+      <name>PL Snapshots</name>
+      <url>http://nexus3-core:8081/nexus3/repository/maven-snapshots</url>
     </snapshotRepository>
 </distributionManagement>
 ----

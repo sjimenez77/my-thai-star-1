@@ -13,11 +13,11 @@ image::images/ci/java/java_pipeline_flow.PNG[, link="java_pipeline_flow.PNG"]
 
 Check those Pipeline stages with more detail:
 
-. Declarative: Checkout SCM
+. *Declarative: Checkout SCM*
 +
 Gets the code from https://github.com/oasp/my-thai-star . This step is not defined directly in our pipeline, but as it is loaded from the repository this step should always be done at the beginning.
 +
-. Unit Tests
+. *Unit Tests*
 +
 This step will execute the project unit test with maven.
 +
@@ -26,7 +26,7 @@ This step will execute the project unit test with maven.
 mvn clean test
 ----
 +
-. SonarQube analysis
+. *SonarQube analysis*
 +
 The code is evaluated using the integrated PL instance's SonarQube. Also, it will wait for the quality gate status. If the status is failing, the pipeline execution will be stoped.
 +
@@ -42,7 +42,7 @@ if (qg.status != 'OK') {
 }
 ----
 +
-. Deliver application into Nexus
+. *Deliver application into Nexus*
 +
 Store all artifacts into nexus.
 +
@@ -77,14 +77,14 @@ environment {
 ----
 
 ==== Description
-- javaDir: Relative route to java application. In My Thai Star this is the java/mtsj folder. The actual directory (.) is also allowed.
+- *javaDir*: Relative route to java application. In My Thai Star this is the java/mtsj folder. The actual directory (.) is also allowed.
 +
 image::images/ci/java/java_directory.png[, link="java_directory.png"]
-- sonarEnv: Name of the sonarQube environment. SonarQube is the default value for PL.
-- globalSettingsId: The id of the global settings file. MavenSettings is the default value for PL.
+- *sonarEnv*: Name of the sonarQube environment. SonarQube is the default value for PL.
+- *globalSettingsId*: The id of the global settings file. MavenSettings is the default value for PL.
 +
 image::images/ci/angular/nexus3_global_config.png[, link="nexus3_global_config.PNG"]
-- mavenInstallation: The name of the maven tool. Maven3 is the default value for PL.
+- *mavenInstallation*: The name of the maven tool. Maven3 is the default value for PL.
 +
 image::images/ci/angular/maven_tool.png[, link="maven_tool.PNG"]
 
